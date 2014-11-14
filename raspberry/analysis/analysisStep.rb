@@ -1,44 +1,44 @@
 require 'time'
 
-allStep = {}
-firstTime = Time.now; if(ARGV.length == 1) then firstTime = Time.parse(ARGV[0]) end
-lastTime = firstTime + 24 * 60 * 60
+all_step = {}
+first_time = ARGV.length == 1 ? Time.parse(ARGV[0]) : Time.now
+last_time = first_time + 24 * 60 * 60
 
 12.times.each do |i|
-  allStep[i] = {}
+  all_step[i] = {}
 
-  open("tmp/#{i}StepLog.txt").each{ |line|
+  open("tmp/#{i}StepLog.txt").each do |line|
     path, num = line.split ':'
-    yyyy,mm,dd,h,mi = path.split('/')[2,5]
-puts path
-    time = Time.parse sprintf("%d-%d-%d_%d:%d", yyyy, mm, dd, h, mi)
+    yyyy, mm, dd, h, mi = path.split('/')[2, 5]
 
-    allStep[i][time] = num.to_i + 0
-  }
+    time = Time.parse sprintf('%d-%d-%d_%d:%d', yyyy, mm, dd, h, mi)
 
-  allStep[i].sort
+    all_step[i][time] = num.to_i + 0
+  end
+
+  all_step[i].sort
 end
 
-stepLog = {}
+step_log = {}
 f = open('stepLog.csv', 'w')
-while firstTime < lastTime do
-  stepLog[firstTime] = {}
+while first_time < last_time
+  step_log[first_time] = {}
 
-  time = firstTime.to_s.split(' +').first
+  time = first_time.to_s.split(' +').first
   f.print(time)
 
-  allStep.each{ |sKey, sValue|
-    limitTime = firstTime + 10 * 60
+  all_step.each do |key, value|
+    limit_time = first_time + 10 * 60
 
-    rangedStep = sValue.select{ |key,value| firstTime <= key && key < limitTime }
-    stepNum = rangedStep.map{ |key, value| value }.inject{ |sum, value| sum + value }.to_i
-    stepLog[firstTime][sKey] = stepNum
+    ranged_step = value.select { |t, _| first_time <= t && t < limit_time }
+    step_num = ranged_step.map { |_, n| n }.inject { |a, e| a + e }.to_i
+    step_log[first_time][key] = step_num
 
-    f.print(", #{stepNum}")
-  }
-  f.puts('')
+    f.print(", #{step_num}")
+  end
+  f.print("\n")
 
-  firstTime += 10 * 60
+  first_time += 10 * 60
 end
 
 f.close
